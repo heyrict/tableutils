@@ -1,0 +1,11 @@
+# python cache
+__pycache__
+
+# templates for testing
+template*
+
+# vim swap files
+.*.swp
+
+# old files
+grid.py
