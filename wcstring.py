@@ -28,6 +28,11 @@ class wcstr(str):
                 start, stop, step)))
         else: return
 
+    def dupstr(self):
+        # return a duplicated string with every element
+        # indicating one-width character
+        return ''.join([self[i] for i in range(len(self))])
+
     # alias for other str methods
 
     def __add__(self, *args, **kwargs):
