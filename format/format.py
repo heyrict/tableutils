@@ -10,7 +10,9 @@ class GridTableTextFormatter():
         self.boarder = boarder
 
         if gt.colwidth: self.colwidth = self.gt.colwidth
-        else: self.colwidth = self._calc_best_colwidth()
+        else: 
+            self.colwidth = self._calc_best_colwidth()
+            self._resize(self.colwidth)
         self.colwidth = [i + self.boarder for i in self.colwidth]
 
     def to_txt(self):
@@ -53,20 +55,26 @@ class GridTableTextFormatter():
                         thresh = scw[s]
                 thresh = int(max(thresh, widths[col][0], maxwidth/len(self.gt.data)))
 
-                # change the form to correspond to new threshold
-                origlen = [len(i) for i in self.gt.data[col]]
-                self.gt.data[col] = [_auto_splitline(wcstr('').join(i), thresh=thresh)
-                        for i in self.gt.data[col]] 
-                self.gt.data[col] = [self.gt.data[col][i] + ['']*(origlen[i]-len(self.gt.data[col][i]))
-                        * ((origlen[i]-len(self.gt.data[col][i]))>0)
-                        for i in range(len(self.gt.data[col]))]
-                preslen = [len(i) for i in self.gt.data[col]]
                 colwidth.append(thresh)
             else:
                 colwidth.append(scw[-1])
 
-        #print(widths, colwidth, sep='\n')
         return colwidth
+
+    def _resize(self, colwidth):
+        # change the form to correspond to new threshold
+        for col in range(len(colwidth)):
+            thresh = colwidth[col]
+            if max([len(i) for i in sum(self.gt.data[col],[])]) < thresh:
+                continue
+            else:
+                origcount = [len(i) for i in self.gt.data[col]]
+                self.gt.data[col] = [_auto_splitline(wcstr('').join(i), thresh=thresh)
+                        for i in self.gt.data[col]] 
+                self.gt.data[col] = [self.gt.data[col][i] + ['']*(origcount[i]-len(self.gt.data[col][i]))
+                        * ((origcount[i]-len(self.gt.data[col][i]))>0)
+                        for i in range(len(self.gt.data[col]))]
+                prescount = [len(i) for i in self.gt.data[col]]
 
     def fillspace(self):
         filled_data = self.gt.data
