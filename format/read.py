@@ -63,9 +63,9 @@ class GridTableReader(ColumnFreeTableReader):
                         coldata[col][colcounter[col]].append(line[vs[col]+1:vs[col+1]].strip())
 
         if self.reset_linebreak:
-            return ColumnFreeTable(data=coldata, colwidth=colwidth)
-        else:
             return ColumnFreeTable(data=coldata)
+        else:
+            return ColumnFreeTable(data=coldata, colwidth=colwidth)
 
 
     def read_loose(self, vertical_split=[]):

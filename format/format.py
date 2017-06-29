@@ -30,7 +30,7 @@ class GridTableTextFormatter():
     def _calc_best_colwidth(self, join_lines=True, maxwidth=90):
         # simple static functions
         avg = lambda x: sum(x) / len(x)
-        std = lambda x: sum([(i - avg(x))**2 for i in x])
+        var = lambda x: sum([(i - avg(x))**2 for i in x])
 
         # useful values
         # length_of_columns
@@ -47,7 +47,7 @@ class GridTableTextFormatter():
         for col in range(len(self.gt.data)):
             scw = sorted([i for i in widths[col] if i])
             diffs = [scw[i] - scw[i-1] for i in range(1,len(scw))]
-            if std(scw) > 100 and scw[-1] > maxwidth/len(self.gt.data): 
+            if var(scw) > 100 and scw[-1] > maxwidth/len(self.gt.data): 
                 # calculate threshold
                 thresh = 0; prev = -1
                 for s in range(len(diffs)):
