@@ -14,6 +14,7 @@ class GridTableTextFormatter():
         else: 
             self.colwidth = self._calc_best_colwidth()
             self._resize(self.colwidth)
+        self.colwidth = [max([max([len(k) for k in i]) for i in j]) for j in self.gt.data]
         self.colwidth = [i + self.boarder for i in self.colwidth]
 
     def to_txt(self):
@@ -69,19 +70,46 @@ class GridTableTextFormatter():
             if max([len(i) for i in sum(self.gt.data[col],[])]) < thresh:
                 continue
             else:
-                origcount = [len(i) for i in self.gt.data[col]]
-                self.gt.data[col] = [_auto_splitline(wcstr('').join(i), thresh=thresh)
-                        for i in self.gt.data[col]] 
-                self.gt.data[col] = [self.gt.data[col][i] + ['']*(origcount[i]-len(self.gt.data[col][i]))
-                        * ((origcount[i]-len(self.gt.data[col][i]))>0)
-                        for i in range(len(self.gt.data[col]))]
-                prescount = [len(i) for i in self.gt.data[col]]
+                for item in range(len(self.gt.data[col])):
+                    self._resize_push(col, item, _auto_splitline(\
+                            wcstr('').join(self.gt.data[col][item]), thresh=thresh))
 
-    def _resize_push(self, col, item, index):
-        pass
+        self._resize_exec()
+        return
+
+    def _resize_push(self, col, item, content):
+        self._resize_stack.append((col,item,content))
 
     def _resize_exec(self):
-        pass
+        origshape = [_count_iter([i[0] for i in j if i]) for j in self.gt.index]
+
+        while len(self._resize_stack) > 0 :
+            i = self._resize_stack.pop()
+            col = i[0]
+            item = i[1]
+            content = i[2]
+            column_count_to_append = len(content) - origshape[col][item]
+
+            if column_count_to_append <= 0:
+                self.gt.data[col][item] = content + (len(self.gt.data[col][item]) - len(content)) * ['']
+            else:
+                # expand short columns
+                current_index = self.gt.index[col].index((item, origshape[col][item]-1))
+                to_be_appended_index = current_index + column_count_to_append
+                expand_range = 1
+                for c in range(len(origshape)):
+                    if c == col: continue
+                    try:
+                        expand_range = max(expand_range, column_count_to_append - self.gt.index[c]\
+                                [current_index:to_be_appended_index+1].index(None) + 1)
+                    except ValueError:
+                        continue
+
+                for c in range(len(origshape)):
+                    item_to_expand = self.gt.index[c][current_index + expand_range - 1][0]
+                    self.gt.data[c][item_to_expand] += ['']*expand_range
+
+                self.gt.data[col][item] = content + (len(self.gt.data[col][item]) - len(content)) * ['']
 
     def fillspace(self):
         filled_data = self.gt.data
@@ -158,3 +186,27 @@ def _auto_splitline(line, thresh=78, symbols=';:,.，。'):
     out.append(line)
 
     return out
+
+
+def _count_iter(it):
+    '''
+    count item in a given iterator.
+
+    Parameters
+    ----------
+    string : iterable
+
+    Examples
+    --------
+    >>> count_iter([1,1,2,2,2,3])
+    {1: 2, 2: 3, 3: 1}
+    
+    >>> count_iter(['a','a','b','b','b','c'])
+    {'a': 2, 'c': 1, 'b': 3}
+
+    '''
+    d = dict()
+    allitems = set(it)
+    for i in allitems:
+        d[i] = it.count(i)
+    return d

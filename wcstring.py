@@ -48,8 +48,10 @@ class wcstr(str):
         return wcstr(super(wcstr, self).__format__(*args, **kwargs))
     
     def center(self, width, fillchar=' '):
-        return super(wcstr, self).center(width - len(self) +
-                len(str(self)))
+        filllen = (width - len(self)) // 2
+        return wcstr(fillchar * filllen + self + fillchar * (width - len(self) - filllen))
+       #return super(wcstr, self).center(width - len(self) +
+       #        len(str(self)))
 
     def casefold(self, *args, **kwargs):
         return wcstr(super(wcstr, self).casefold(*args, **kwargs))
