@@ -8,6 +8,7 @@ class GridTableTextFormatter():
     def __init__(self, gt, boarder=2):
         self.gt = gt
         self.boarder = boarder
+        self._resize_stack = []
 
         if gt.colwidth: self.colwidth = self.gt.colwidth
         else: 
@@ -75,6 +76,12 @@ class GridTableTextFormatter():
                         * ((origcount[i]-len(self.gt.data[col][i]))>0)
                         for i in range(len(self.gt.data[col]))]
                 prescount = [len(i) for i in self.gt.data[col]]
+
+    def _resize_push(self, col, item, index):
+        pass
+
+    def _resize_exec(self):
+        pass
 
     def fillspace(self):
         filled_data = self.gt.data
