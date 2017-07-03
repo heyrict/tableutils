@@ -7,4 +7,4 @@ def read_grid(string, sepline_expr='[+|]-+[+|]', reset_linebreak=False):
 
 
 def to_grid(cft, boarder=2):
-    GridTableTextFormatter(cft, boarder=boarder).to_txt()
+    return GridTableTextFormatter(cft, boarder=boarder).to_txt()

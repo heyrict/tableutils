@@ -2,32 +2,41 @@
 
 from tableutils.wcstring import wcstr
 from tableutils.table import *
+from math import floor, ceil
 import re
 
 class GridTableTextFormatter():
-    def __init__(self, gt, boarder=2):
+    def __init__(self, gt, boarder=2, maxwidth=90, newline_rate=1):
         self.gt = gt
         self.boarder = boarder
         self._resize_stack = []
 
         if gt.colwidth: self.colwidth = self.gt.colwidth
         else: 
-            self.colwidth = self._calc_best_colwidth()
+            self.colwidth = self._calc_best_colwidth(maxwidth,newline_rate)
             self._resize(self.colwidth)
         self.colwidth = [max([max([len(k) for k in i]) for i in j]) for j in self.gt.data]
         self.colwidth = [i + self.boarder for i in self.colwidth]
 
-    def to_txt(self):
-        self.fillspace()
-        self.put_index()
-        self.put_data()
+    def to_txt(self, halign='c', valign='c'):
+        out = ''
+        self.fillspace(halign,valign)
+        out += self.put_index()
+        out += self.put_data()
+        return out
 
     def put_index(self):
-        print('+','+'.join([(i)*'-' for i in self.colwidth]),'+',sep='')
-        print('|','|'.join([''.join(i[0]) for i in self.gt.data]),'|',sep='')
-        print('+','+'.join([(i)*'=' for i in self.colwidth]),'+',sep='')
+        out = ''
+        out += '+'+'+'.join([(i)*'-' for i in self.colwidth])+'+\n'
+        out += '|'+'|'.join([''.join(i[0]) for i in self.gt.data])+'|\n'
+        out += '+'+'+'.join([(i)*'=' for i in self.colwidth])+'+\n'
+        return out
 
-    def _calc_best_colwidth(self, join_lines=True, maxwidth=90):
+    def _calc_best_colwidth(self, maxwidth=90, newline_rate=1):
+        # maxwidth shouldn't be too small
+        if maxwidth < len(self.gt.data) * 5:
+            maxwidth = len(self.gt.data) * 5
+
         # simple static functions
         avg = lambda x: sum(x) / len(x)
         var = lambda x: sum([(i - avg(x))**2 for i in x])
@@ -47,7 +56,7 @@ class GridTableTextFormatter():
         for col in range(len(self.gt.data)):
             scw = sorted([i for i in widths[col] if i])
             diffs = [scw[i] - scw[i-1] for i in range(1,len(scw))]
-            if var(scw) > 100 and scw[-1] > maxwidth/len(self.gt.data): 
+            if var(scw) > 1000*newline_rate and scw[-1] > maxwidth/len(self.gt.data): 
                 # calculate threshold
                 thresh = 0; prev = -1
                 for s in range(len(diffs)):
@@ -111,22 +120,32 @@ class GridTableTextFormatter():
 
                 self.gt.data[col][item] = content + (len(self.gt.data[col][item]) - len(content)) * ['']
 
-    def fillspace(self):
+    def fillspace(self, halign='c', valign='c'):
         filled_data = self.gt.data
-        align = list(self.gt.align)
-        if len(align) < len(filled_data):
-            align += (len(filled_data) - len(align)) * [align[-1]]
+        halign = list(halign)
+        if len(halign) < len(filled_data):
+            halign += (len(filled_data) - len(halign)) * [halign[-1]]
+
+        valign = list(valign)
+        if len(valign) < len(filled_data):
+            valign += (len(filled_data) - len(valign)) * [valign[-1]]
+
+        for col in range(len(filled_data)):
+            for item in range(len(filled_data[col])):
+                filled_data[col][item] = _vjustify(filled_data[col][item],
+                        valign[col])
 
         for col in range(len(filled_data)):
             filled_data[col] = [[_justify(i,self.colwidth[col],
-                align[col]) for i in j] for j in filled_data[col]]
+                halign[col]) for i in j] for j in filled_data[col]]
 
         return filled_data
 
     def put_data(self):
+        out = ''
         colcounter = [1] * len(self.gt.data)
         indcounter = [0] * len(self.gt.data)
-        bdrindic = []
+        bdrindic = []                           #boarder indicator
         nextline = []
 
         # the remaining parts
@@ -143,24 +162,36 @@ class GridTableTextFormatter():
                     bdrindic.append(False)
         
             bdrindic.append(False)
-            print('+' if bdrindic[0] else '|', end='')
+            out += '+' if bdrindic[0] else '|'
             for col in range(len(self.gt.data)):
-                print(nextline[col], end='')
-                print('+' if (bdrindic[col] | bdrindic[col+1]) else '|', end='')
-            print()
+                out += nextline[col]
+                out += '+' if (bdrindic[col] | bdrindic[col+1]) else '|'
+            out += '\n'
 
             nextline = []
             bdrindic = []
 
+        return out
 
-def _justify(string, width, align='c'):
-    if align == 'l':
+def _justify(string, width, halign='c'):
+    if halign == 'l':
         return wcstr(string.ljust(width))
-    elif align == 'r':
+    elif halign == 'r':
         return wcstr(string.rjust(width))
     else:
         return wcstr(string.center(width))
 
+def _vjustify(item, valign='u'):
+    itemlen = len(item)
+    itemdata = [i for i in item if i]
+    emptylen = itemlen - len(itemdata)
+
+    if valign == 'u':
+        return itemdata + emptylen * ['']
+    elif valign == 'd':
+        return emptylen * [''] + itemdata
+    else:
+        return floor(emptylen/2) * [''] + itemdata + ceil(emptylen/2) * ['']
 
 def _auto_splitline(line, thresh=78, symbols=';:,.，。'):
     length = len(line)
