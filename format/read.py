@@ -13,6 +13,69 @@ class ColumnFreeTableReader(object):
         return bool(re.findall(self.sepline_expr, linestring))
 
 
+class SimpleTableReader(ColumnFreeTableReader):
+    def __init__(self, mode=None, *args, **kwargs):
+        '''
+        Parameters
+        ----------
+        mode : str
+            strict : align-strict pandoc multi-line table
+            loose  : align-loose table
+        '''
+        super(SimpleTableReader, self).__init__(*args, **kwargs)
+        self.sepline_expr = '^[ -]*$'
+        self.mode = mode
+
+    def read(self, string):
+        self.lines = [wcstr(i).strip() for i in string.split('\n')]
+
+        if self.mode == None:
+            if sum([bool(re.findall('^\s*-[- ]+-$', i)) for i in self.lines]) > 0:
+                self.mode = "loose"
+            else: self.mode = "strict"
+
+        if self.mode == "strict":
+            pass
+        elif self.mode == "loose":
+            return self.read_loose()
+        else:
+            raise ValueError('mode %s is not supported'%self.mode)
+
+    def read_strict(self,vertical_split=[]):
+        pass
+    
+    def read_loose(self):
+        lines = [i.strip() for i in self.lines if not re.findall('^[ -]*$',i)]
+        columns = re.split(' {2,}',lines[0])
+        collen = len(columns)
+        data = [re.split(' {2,}',i) for i in lines]
+        data = [[j for j in i if j] for i in data]
+
+        colcounter = [-1]*collen
+        coldata = [[[]] for i in range(collen)]
+
+        for i in range(len(data)):
+            for c in range(collen):
+                try:
+                    if data[i][c] in '-|':
+                        coldata[c][colcounter[c]] += ['','']
+                        continue
+                    else:
+                        colcounter[c] += 1
+                        if colcounter[c] != 0: coldata[c].append([])
+
+                    if data[i][c] in ['na','nan','NA']:
+                        coldata[c][colcounter[c]].append('')
+                    else:
+                        coldata[c][colcounter[c]].append(data[i][c])
+                except:
+                    colcounter[c] += 1
+                    coldata[c].append([])
+                    coldata[c][colcounter[c]].append('')
+
+        return ColumnFreeTable(data=coldata)
+
+
 class GridTableReader(ColumnFreeTableReader):
     def __init__(self, mode='strict', *args, **kwargs):
         super(GridTableReader, self).__init__(*args, **kwargs)

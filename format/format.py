@@ -173,6 +173,58 @@ class GridTableTextFormatter():
 
         return out
 
+class SimpleTableTextFormatter(GridTableTextFormatter):
+    def __init__(self, *args, no_symbol=False, **kwargs):
+        self.no_symbol = no_symbol
+        super(SimpleTableTextFormatter, self).__init__(*args, **kwargs)
+
+    def put_index(self):
+        out = ''
+        out += ' '+' '.join([(i)*'-' for i in self.colwidth])+' \n'
+        out += ' '+' '.join([''.join(i[0]) for i in self.gt.data])+' \n'
+        out += ' '+' '.join([(i)*'-' for i in self.colwidth])+' \n'
+        return out
+
+    def put_data(self):
+        out = ''
+        colcounter = [1] * len(self.gt.data)
+        indcounter = [0] * len(self.gt.data)
+        nextline = []
+
+        # the remaining parts
+        while(colcounter[0] < len(self.gt.data[0])):
+            for col in range(len(self.gt.data)):
+                if indcounter[col] >= len(self.gt.data[col][colcounter[col]]):
+                    nextline.append(' '*(self.colwidth[col]))
+                    colcounter[col] += 1
+                    indcounter[col] = 0
+                else:
+                    t = self.gt.data[col][colcounter[col]][indcounter[col]]
+                    if self.no_symbol: nextline.append(t)
+                    else: nextline.append(t if t.strip() else _justify('-',self.colwidth[col]))
+                    indcounter[col] += 1
+        
+            out += ' '
+            for col in range(len(self.gt.data)):
+                out += nextline[col]
+                out += ' '
+            out += '\n'
+
+            nextline = []
+            bdrindic = []
+
+        out = '\n'.join([i if not re.findall('^[ -]+$',i) else '' for i in out.split('\n')])
+        out += ' '+' '.join([(i)*'-' for i in self.colwidth])+' \n'
+        return out
+
+    def to_txt(self, halign='c', valign='u'):
+        for col in range(len(self.gt.data)):
+            for item in range(len(self.gt.data[col])):
+                t = self.gt.data[col][item]
+                if ''.join(t) == '': self.gt.data[col][item] = ['na'] + [''] * (len(t)-1)
+        return super(SimpleTableTextFormatter, self).to_txt(halign, valign)
+
+
 def _justify(string, width, halign='c'):
     if halign == 'l':
         return wcstr(string.ljust(width))
