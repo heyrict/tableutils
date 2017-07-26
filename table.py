@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from tableutils.wcstring import wcstr
 
 class ColumnFreeTable(object):
     '''
@@ -31,3 +32,9 @@ class ColumnFreeTable(object):
                 self.index[col] += [(colindex, i)
                     for i in range(len(ind))] + [None]
                 colindex += 1
+
+    def combine_grid(self):
+        for col in range(len(self.data)):
+            self.data[col] = [[wcstr('').join(i)] + [''] * (len(i) - 1)\
+                 for i in self.data[col]]
+

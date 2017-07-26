@@ -33,6 +33,10 @@ class GridTableTextFormatter():
         return out
 
     def _calc_best_colwidth(self, maxwidth=90, newline_rate=1):
+        # no newline
+        if newline_rate <= 0:
+            self.gt.combine_grid()
+            return [max([len(i[0]) for i in j]) for j in self.gt.data]
         # maxwidth shouldn't be too small
         if maxwidth < len(self.gt.data) * 5:
             maxwidth = len(self.gt.data) * 5
@@ -45,9 +49,7 @@ class GridTableTextFormatter():
         # length_of_columns
         lc = [len(col) for col in self.gt.data]
 
-        for col in range(len(self.gt.data)):
-            self.gt.data[col] = [[wcstr('').join(i)] + [''] * (len(i) - 1)
-                 for i in self.gt.data[col]]
+        self.gt.combine_grid()
 
         widths = [[len(self.gt.data[col][i[0]][i[1]]) if i else None
             for i in self.gt.index[col]] for col in range(len(self.gt.index))]
@@ -174,9 +176,10 @@ class GridTableTextFormatter():
         return out
 
 class SimpleTableTextFormatter(GridTableTextFormatter):
-    def __init__(self, *args, no_symbol=False, **kwargs):
+    def __init__(self, gt, no_symbol=False, newline_rate=0, *args, **kwargs):
         self.no_symbol = no_symbol
-        super(SimpleTableTextFormatter, self).__init__(*args, **kwargs)
+        super(SimpleTableTextFormatter, self).__init__(gt, 
+                newline_rate=newline_rate, *args, **kwargs)
 
     def put_index(self):
         out = ''
