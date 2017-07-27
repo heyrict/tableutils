@@ -50,8 +50,13 @@ class wcstr(str):
     def center(self, width, fillchar=' '):
         filllen = (width - len(self)) // 2
         return wcstr(fillchar * filllen + self + fillchar * (width - len(self) - filllen))
-       #return super(wcstr, self).center(width - len(self) +
-       #        len(str(self)))
+    def ljust(self, width, fillchar=' '):
+        return wcstr(super(wcstr, self).ljust(width - len(self) +
+            len(str(self)), fillchar))
+
+    def rjust(self, width, fillchar=' '):
+        return wcstr(super(wcstr, self).rjust(width - len(self) +
+            len(str(self)), fillchar))
 
     def casefold(self, *args, **kwargs):
         return wcstr(super(wcstr, self).casefold(*args, **kwargs))
@@ -71,9 +76,6 @@ class wcstr(str):
     def join(self, *args, **kwargs):
         return wcstr(super(wcstr, self).join(*args, **kwargs))
 
-    def ljust(self, *args, **kwargs):
-        return wcstr(super(wcstr, self).ljust(*args, **kwargs))
-
     def lower(self, *args, **kwargs):
         return wcstr(super(wcstr, self).lower(*args, **kwargs))
 
@@ -82,9 +84,6 @@ class wcstr(str):
 
     def replace(self, *args, **kwargs):
         return wcstr(super(wcstr, self).replace(*args, **kwargs))
-
-    def rjust(self, *args, **kwargs):
-        return wcstr(super(wcstr, self).rjust(*args, **kwargs))
 
     def rstrip(self, *args, **kwargs):
         return wcstr(super(wcstr, self).rstrip(*args, **kwargs))

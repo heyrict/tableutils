@@ -12,7 +12,7 @@ class GridTableTextFormatter():
         self._resize_stack = []
 
         if gt.colwidth: self.colwidth = self.gt.colwidth
-        else: 
+        else:
             self.colwidth = self._calc_best_colwidth(maxwidth,newline_rate)
             self._resize(self.colwidth)
         self.colwidth = [max([max([len(k) for k in i]) for i in j]) for j in self.gt.data]
@@ -58,7 +58,7 @@ class GridTableTextFormatter():
         for col in range(len(self.gt.data)):
             scw = sorted([i for i in widths[col] if i])
             diffs = [scw[i] - scw[i-1] for i in range(1,len(scw))]
-            if var(scw) > 1000*newline_rate and scw[-1] > maxwidth/len(self.gt.data): 
+            if var(scw) > 1000*newline_rate and scw[-1] > maxwidth/len(self.gt.data):
                 # calculate threshold
                 thresh = 0; prev = -1
                 for s in range(len(diffs)):
@@ -125,6 +125,8 @@ class GridTableTextFormatter():
     def fillspace(self, halign='c', valign='c'):
         filled_data = self.gt.data
         halign = list(halign)
+
+        # fill align list
         if len(halign) < len(filled_data):
             halign += (len(filled_data) - len(halign)) * [halign[-1]]
 
@@ -132,6 +134,7 @@ class GridTableTextFormatter():
         if len(valign) < len(filled_data):
             valign += (len(filled_data) - len(valign)) * [valign[-1]]
 
+        # set align
         for col in range(len(filled_data)):
             for item in range(len(filled_data[col])):
                 filled_data[col][item] = _vjustify(filled_data[col][item],
@@ -162,7 +165,7 @@ class GridTableTextFormatter():
                     nextline.append(self.gt.data[col][colcounter[col]][indcounter[col]])
                     indcounter[col] += 1
                     bdrindic.append(False)
-        
+
             bdrindic.append(False)
             out += '+' if bdrindic[0] else '|'
             for col in range(len(self.gt.data)):
@@ -178,8 +181,9 @@ class GridTableTextFormatter():
 class SimpleTableTextFormatter(GridTableTextFormatter):
     def __init__(self, gt, no_symbol=False, newline_rate=0, *args, **kwargs):
         self.no_symbol = no_symbol
-        super(SimpleTableTextFormatter, self).__init__(gt, 
+        super(SimpleTableTextFormatter, self).__init__(gt,
                 newline_rate=newline_rate, *args, **kwargs)
+        self.gt.combine_grid()
 
     def put_index(self):
         out = ''
@@ -206,7 +210,7 @@ class SimpleTableTextFormatter(GridTableTextFormatter):
                     if self.no_symbol: nextline.append(t)
                     else: nextline.append(t if t.strip() else _justify('-',self.colwidth[col]))
                     indcounter[col] += 1
-        
+
             out += ' '
             for col in range(len(self.gt.data)):
                 out += nextline[col]
@@ -252,8 +256,8 @@ def _auto_splitline(line, thresh=78, symbols=';:,.，。'):
     length = len(line)
     if length < thresh: return [line]
     halfsep = [int(length/(length//thresh+1)*(i+1)) for i in range(length//thresh)]
-    if symbols: 
-        preferred_sep = sorted(list(set(i.end()-1 for i 
+    if symbols:
+        preferred_sep = sorted(list(set(i.end()-1 for i
             in re.finditer(r'['+symbols+']+[^\n]',line.dupstr())))+halfsep+[length])
     else:
         preferred_sep = list(range(length))
@@ -286,7 +290,7 @@ def _count_iter(it):
     --------
     >>> count_iter([1,1,2,2,2,3])
     {1: 2, 2: 3, 3: 1}
-    
+
     >>> count_iter(['a','a','b','b','b','c'])
     {'a': 2, 'c': 1, 'b': 3}
 
