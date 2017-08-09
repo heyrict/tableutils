@@ -11,7 +11,8 @@ def read_simple(string, mode='loose', sepline_expr='^[ -]*$', reset_linebreak=Fa
 
 
 def to_grid(cft, boarder=2, maxwidth=90, newline_rate=1, halign='c', valign='c'):
-    return GridTableTextFormatter(cft, boarder=boarder).to_txt(halign=halign, valign=valign)
+    return GridTableTextFormatter(cft, boarder=boarder, newline_rate=newline_rate)\
+                .to_txt(halign=halign, valign=valign)
 
 def to_simple(cft, no_symbol=False, newline_rate=0, halign='c'):
     return SimpleTableTextFormatter(cft).to_txt(halign=halign)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import optparse,pyperclip
+import optparse,pyperclip,sys
 
 from tableutils import *
 
@@ -23,6 +23,8 @@ def main():
     opt.add_option('-n','--replace-na',dest='replace_na',default=False,action='store_true',help='replace na values by spaces (WARNING: THIS OPTION WILL PROBABLY MAKE OUTPUT UNCOMPATIBLE)')
     opt.add_option('-H',dest='halign',default='c',help='horizonal align: [l,c,r]')
     opt.add_option('-V',dest='valign',default='c',help='vertical align: [u,c,d]')
+
+    opt.add_option('-%',dest='sq',default=1,help='squeeze rate for grid output')
 
     opt.add_option('-c','--to-clipboard',dest='to_clipboard',action='store_true',default=False,help='redirect output to clipboard')
     opt.add_option('-C','--from-clipboard',dest='from_clipboard',action='store_true',default=False,help='redirect input from clipboard')
@@ -101,7 +103,7 @@ def main():
         pyperclip.copy(outstr.read())
     else:
         if options.to_format == 'grid':
-            outstr.write(to_grid(data, halign=options.halign, valign=options.valign))
+            outstr.write(to_grid(data, halign=options.halign, valign=options.valign, newline_rate=float(options.sq)))
         elif options.to_format == 'simple':
             outstr.write(to_simple(data,no_symbol=options.replace_na, halign=options.halign))
 
