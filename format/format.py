@@ -221,6 +221,7 @@ class SimpleTableTextFormatter(GridTableTextFormatter):
             bdrindic = []
 
         out = '\n'.join([i if not re.findall('^[ -]+$',i) else '' for i in out.split('\n')])
+        out = out.rstrip() + '\n'
         out += ' '+' '.join([(i)*'-' for i in self.colwidth])+' \n'
         return out
 

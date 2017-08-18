@@ -9,3 +9,6 @@ template*
 
 # old files
 grid.py
+
+# test files
+test/

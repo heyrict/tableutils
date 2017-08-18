@@ -27,12 +27,11 @@ class SimpleTableReader(ColumnFreeTableReader):
         self.mode = mode
 
     def read(self, string):
+        string = re.sub('\t','    ',string)
         self.lines = [wcstr(i).strip() for i in string.split('\n')]
 
         if self.mode == None:
-            if sum([bool(re.findall('^\s*-[- ]+-$', i)) for i in self.lines]) > 0:
-                self.mode = "loose"
-            else: self.mode = "strict"
+            self.mode = "loose"
 
         if self.mode == "strict":
             pass
@@ -112,14 +111,14 @@ class GridTableReader(ColumnFreeTableReader):
         for line in self.lines[:-1]:
             for col in range(collen):
                 if self.reset_linebreak:
-                    if re.findall('[-=]+',line[vs[col]+1:vs[col+1]]):
+                    if re.findall('[-=]{3,}',line[vs[col]+1:vs[col+1]]):
                         coldata[col].append([])
                         colcounter[col] += 1
                     else:
                         coldata[col][colcounter[col]].append(wcstr(''))
                         coldata[col][colcounter[col]][0] += line[vs[col]+1:vs[col+1]].strip()
                 else:
-                    if re.findall('[-=]+',line[vs[col]+1:vs[col+1]]):
+                    if re.findall('[-=]{3,}',line[vs[col]+1:vs[col+1]]):
                         coldata[col].append([])
                         colcounter[col] += 1
                     else:
