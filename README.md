@@ -94,4 +94,4 @@ Run `$ ./frontend.py --help` to get extra useful commands.
 
 License
 -------
-Refer to ![License.md](./License.md).
+Refer to ![LICENSE.md](./LICENSE.md).
