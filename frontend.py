@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import optparse,pyperclip,sys
+import optparse,pyperclip,sys,os
 
 from tableutils import *
 
@@ -49,12 +49,12 @@ def main():
             instr.write(pyperclip.paste())
         elif options.vim_edit:
             try:
-                os.system('touch /tmp/excel2md_edit.md')
-                os.system('vim /tmp/excel2md_edit.md')
-            except: print('Error: No vim editor available'); return;
-            with open('/tmp/excel2md_edit.md','r') as f:
+                os.system('touch /tmp/tableutils_edit.md')
+                os.system('vim /tmp/tableutils_edit.md')
+            except Exception as e: print('Error: No vim editor available'); return;
+            with open('/tmp/tableutils_edit.md','r') as f:
                 instr.write(f.read())
-            #os.remove('/tmp/excel2md_edit.md')
+            #os.remove('/tmp/tableutils_edit.md')
         else:
             r = str(sys.stdin.readline())
             while r:
@@ -86,7 +86,7 @@ def main():
     # output
     if options.in_place:
         mode = 'w'
-        if options.vim_edit: options.output = '/tmp/excel2md_edit.md'
+        if options.vim_edit: options.output = '/tmp/tableutils_edit.md'
         elif len(inp)==0:
             print('Error: no file found for replace');return
         elif len(inp)>1:
