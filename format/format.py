@@ -117,7 +117,9 @@ class GridTableTextFormatter():
                         continue
 
                 for c in range(len(origshape)):
-                    item_to_expand = self.gt.index[c][current_index + expand_range - 1][0]
+                    # handle lastone item error issue
+                    try: item_to_expand = self.gt.index[c][current_index + expand_range - 1][0]
+                    except: item_to_expand = -1
                     self.gt.data[c][item_to_expand] += ['']*expand_range
 
                 self.gt.data[col][item] = content + (len(self.gt.data[col][item]) - len(content)) * ['']
