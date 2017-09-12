@@ -5,8 +5,9 @@ from tableutils.table import *
 import re
 
 class ColumnFreeTableReader(object):
-    def __init__(self, sepline_expr='^[+-|]+$', reset_linebreak=False):
+    def __init__(self, sepline_expr='^[+-|]+$', splitline_expr=' {2,}', reset_linebreak=False):
         self.sepline_expr = sepline_expr
+        self.splitline_expr = splitline_expr
         self.reset_linebreak = reset_linebreak
 
     def is_sepline(self, linestring):
@@ -24,6 +25,7 @@ class SimpleTableReader(ColumnFreeTableReader):
         '''
         super(SimpleTableReader, self).__init__(*args, **kwargs)
         self.sepline_expr = '^[ -]*$'
+        self.splitline_expr = ' {2,}'
         self.mode = mode
 
     def read(self, string):
@@ -42,12 +44,12 @@ class SimpleTableReader(ColumnFreeTableReader):
 
     def read_strict(self,vertical_split=[]):
         pass
-    
+
     def read_loose(self):
-        lines = [i.strip() for i in self.lines if not re.findall('^[ -]*$',i)]
-        columns = re.split(' {2,}',lines[0])
+        lines = [i.strip() for i in self.lines if not re.findall(self.sepline_expr,i)]
+        columns = re.split(self.splitline_expr,lines[0])
         collen = len(columns)
-        data = [re.split(' {2,}',i) for i in lines]
+        data = [re.split(self.splitline_expr,i) for i in lines]
         data = [[j for j in i if j] for i in data]
 
         colcounter = [-1]*collen
@@ -56,7 +58,7 @@ class SimpleTableReader(ColumnFreeTableReader):
         for i in range(len(data)):
             for c in range(collen):
                 try:
-                    if data[i][c] in '-|':
+                    if data[i][c] in '-':
                         coldata[c][colcounter[c]] += ['','']
                         continue
                     else:
@@ -75,6 +77,19 @@ class SimpleTableReader(ColumnFreeTableReader):
         return ColumnFreeTable(data=coldata)
 
 
+class PipelineTableReader(SimpleTableReader):
+    def __init__(self, *args, **kwargs):
+        super(PipelineTableReader, self).__init__(*args, **kwargs)
+        self.sepline_expr = r"^[-:|]*$"
+        self.splitline_expr = r"(?<!\\)\|"
+
+    def read(self, string):
+        table = super(PipelineTableReader, self).read(string)
+        table.data = [i for i in table.data if len(i) > 0 and i[-1] != []]
+        print(table.data)
+        return table
+
+
 class GridTableReader(ColumnFreeTableReader):
     def __init__(self, mode='strict', *args, **kwargs):
         super(GridTableReader, self).__init__(*args, **kwargs)
@@ -91,7 +106,7 @@ class GridTableReader(ColumnFreeTableReader):
 
         vs = self._get_vertical_sep(seplines=seplines)
 
-        if self.mode == 'strict': 
+        if self.mode == 'strict':
             return self.read_strict(vertical_split=vs)
         elif self.mode == 'loose':
             return self.read_loose(vertical_split=vs)

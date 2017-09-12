@@ -136,6 +136,9 @@ class GridTableTextFormatter():
         if len(valign) < len(filled_data):
             valign += (len(filled_data) - len(valign)) * [valign[-1]]
 
+        self.halign = halign
+        self.valign = valign
+
         # set align
         for col in range(len(filled_data)):
             for item in range(len(filled_data[col])):
@@ -233,6 +236,69 @@ class SimpleTableTextFormatter(GridTableTextFormatter):
                 t = self.gt.data[col][item]
                 if ''.join(t) == '': self.gt.data[col][item] = ['na'] + [''] * (len(t)-1)
         return super(SimpleTableTextFormatter, self).to_txt(halign, valign)
+
+
+class PipelineTableTextFormatter(GridTableTextFormatter):
+    def __init__(self, gt, no_symbol=False, newline_rate=0, *args, **kwargs):
+        self.no_symbol = no_symbol
+        self.halign = None
+        gt.combine_grid()
+        for c in range(len(gt.data)):
+            for i in range(len(gt.data[c])):
+                gt.data[c][i] = [t for t in gt.data[c][i] if t]
+        super(PipelineTableTextFormatter, self).__init__(gt,
+                newline_rate=newline_rate, *args, **kwargs)
+
+    def put_index(self):
+        out = ''
+        out += '|'+'|'.join([''.join(i[0]) for i in self.gt.data])+'|\n'
+        if self.halign == None:
+            out += '|'+'|'.join([(i)*'-' for i in self.colwidth])+'|\n'
+        else:
+            out += '|'+'|'.join([':'+(self.colwidth[i]-1)*'-' if self.halign[i]=='l'
+                else (':'+(self.colwidth[i]-2)*'-'+':' if self.halign[i]=='c'
+                    else (self.halign[i]-1)*'-'+':')
+                for i in range(len(self.colwidth))])+'|\n'
+        return out
+
+    def put_data(self):
+        out = ''
+        colcounter = [1] * len(self.gt.data)
+        indcounter = [0] * len(self.gt.data)
+        nextline = []
+
+        # the remaining parts
+        while(colcounter[0] < len(self.gt.data[0])):
+            for col in range(len(self.gt.data)):
+                if indcounter[col] >= len(self.gt.data[col][colcounter[col]]):
+                    nextline.append(' '*(self.colwidth[col]))
+                    colcounter[col] += 1
+                    indcounter[col] = 0
+                else:
+                    t = self.gt.data[col][colcounter[col]][indcounter[col]]
+                    if self.no_symbol: nextline.append(t)
+                    else: nextline.append(t if t.strip() else _justify('-',self.colwidth[col]))
+                    indcounter[col] += 1
+
+            out += '|'
+            for col in range(len(self.gt.data)):
+                out += nextline[col]
+                out += '|'
+            out += '\n'
+
+            nextline = []
+            bdrindic = []
+
+        out = '\n'.join([i for i in out.split('\n') if not re.findall('^[ |]+$',i) ])
+        out = out.rstrip() + '\n'
+        return out
+
+    def to_txt(self, halign='c', valign='u'):
+        for col in range(len(self.gt.data)):
+            for item in range(len(self.gt.data[col])):
+                t = self.gt.data[col][item]
+                if ''.join(t) == '': self.gt.data[col][item] = ['na'] + [''] * (len(t)-1)
+        return super(PipelineTableTextFormatter, self).to_txt(halign, valign)
 
 
 def _justify(string, width, halign='c'):

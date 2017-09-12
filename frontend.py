@@ -33,6 +33,8 @@ def main():
     opt.add_option('-s','--to-simple',dest='to_format',default='simple',action='store_const',const='simple')
     opt.add_option('-G','--from-grid',dest='from_format',action='store_const',const='grid')
     opt.add_option('-g','--to-grid',dest='to_format',action='store_const',const='grid')
+    opt.add_option('-P','--from-pipeline',dest='from_format',action='store_const',const='pipeline')
+    opt.add_option('-p','--to-pipeline',dest='to_format',action='store_const',const='pipeline')
 
     (options,args) = opt.parse_args()
     inp = args
@@ -67,6 +69,8 @@ def main():
                 data = read_simple(instr.read())
             elif options.from_format == 'grid':
                 data = read_grid(instr.read())
+            elif options.from_format == 'pipeline':
+                data = read_pipeline(instr.read())
             else:
                 raise ValueError('From-format %s invalid'%options.from_format)
         except Exception as e: print(e); return
@@ -79,6 +83,8 @@ def main():
                     data = read_simple(f.read())
                 elif options.from_format == 'grid':
                     data = read_grid(f.read())
+                elif options.from_format == 'pipeline':
+                    data = read_pipeline(f.read())
                 else:
                     raise ValueError('From-format %s invalid'%options.from_format)
             except Exception as e: print(e);return
@@ -99,13 +105,17 @@ def main():
         if options.to_format == 'grid':
             outstr.write(to_grid(data, halign=options.halign, valign=options.valign))
         elif options.to_format == 'simple':
-            outstr.write(to_simple(data,no_symbol=options.replace_na, halign=options.halign))
+            outstr.write(to_simple(data, halign=options.halign))
+        if options.to_format == 'pipeline':
+            outstr.write(to_pipeline(data, halign=options.halign))
         pyperclip.copy(outstr.read())
     else:
         if options.to_format == 'grid':
             outstr.write(to_grid(data, halign=options.halign, valign=options.valign, newline_rate=float(options.sq)))
         elif options.to_format == 'simple':
-            outstr.write(to_simple(data,no_symbol=options.replace_na, halign=options.halign))
+            outstr.write(to_simple(data, halign=options.halign))
+        elif options.to_format == 'pipeline':
+            outstr.write(to_pipeline(data, halign=options.halign))
 
         if options.output:
             with open(options.output,mode) as f:
