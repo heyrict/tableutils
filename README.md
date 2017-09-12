@@ -1,6 +1,6 @@
 tableutils
 ==========
-A simple tool to create/read/edit grid tables and multi-line tables.
+A simple tool to create/read/edit grid tables, multi-line tables and pipeline tables.
 
 Dependencies
 -----------
@@ -14,7 +14,7 @@ Installation
 ------------
 No wheels yet.
 
-Please soft-link the whole tableutils folder to python3 dist-package folder.
+Please soft-link the whole tableutils folder to python3 dist-package(site-packages) folder.
 You may also want to alias `frontend.py` to a new name.
 
 ### Linux or Unix-like systems
@@ -44,13 +44,14 @@ A team    B team
 Note that all fields are separated by tabs or **over two** spaces.
 
 To format it by tableutils frontend, use:
+
 ```bash
 $ ./frontend.py -Ss temp.md  #convert temp.md from simple table to simple table (Format it).
- -------- -------- 
-  A team   B team  
- -------- -------- 
+ -------- --------
+  A team   B team
+ -------- --------
     1        0
- -------- -------- 
+ -------- --------
 ```
 ```bash
 $ ./frontend.py -Sg temp.md  #convert temp.md from simple table to grid table.
@@ -59,17 +60,29 @@ $ ./frontend.py -Sg temp.md  #convert temp.md from simple table to grid table.
 +========+========+
 |   1    |   0    |
 +--------+--------+
+$
+$ ./frontend.py -Sp temp.md  #convert temp.md from simple table to piepline table.
+|A team|B team|
+|:----:|:----:|
+|  1   |  0   |
 ```
+and the pipeline tables will be recognized perfectly by github-style markdown, like this:
+
+|A team|B team|
+|:----:|:----:|
+|  1   |  0   |
+
 ```bash
-$ ./frontend.py -rSg temp.md  
+$ ./frontend.py -rSg temp.md
 $ # convert temp.md from simple table to grid table and replace temp.md,
 $ # equivalent to `$ ./frontend.py -Sg temp.md -o temp.md`.
 
-$ ./frontend.py -cSg temp.md 
+$ ./frontend.py -cSg temp.md
 $ # convert temp.md from simple table to grid table and copy it to clipboard.
 ```
 ### Advanced Usage
 Assume we have an unformatted table `temp2.md`:
+
 ```
 Genre    Name     Score
 Girls    Betty    99
@@ -99,6 +112,8 @@ $ # control align by `-H` flag
 ```
 Note: Only support grid combination of non-first row vertical siblings.
 
+_Warning: Having grid combination to pipeline tables will have a bad performance at present._
+
 #### Automatical Line-change
 ```bash
 $ ./frontend.py -Sg -%0.5 #(experimental)automatically add newline to long grids
@@ -121,6 +136,7 @@ AlexanderII     Male     4    0      I am the greatest person ever on the world!
 ```
 #### Blank Grids
 Try add `na` or `nan` to your simple table as a blank-grid indicator.
+
 ```bash
 $ ./frontend.py -Sg
 Name    Score
@@ -141,4 +157,4 @@ Run `$ ./frontend.py --help` to get extra useful commands.
 
 License
 -------
-Refer to ![LICENSE.md](./LICENSE.md).
+Refer to [LICENSE.md](./LICENSE.md).

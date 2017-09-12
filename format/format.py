@@ -126,9 +126,9 @@ class GridTableTextFormatter():
 
     def fillspace(self, halign='c', valign='c'):
         filled_data = self.gt.data
-        halign = list(halign)
 
         # fill align list
+        halign = list(halign)
         if len(halign) < len(filled_data):
             halign += (len(filled_data) - len(halign)) * [halign[-1]]
 
@@ -188,7 +188,6 @@ class SimpleTableTextFormatter(GridTableTextFormatter):
         self.no_symbol = no_symbol
         super(SimpleTableTextFormatter, self).__init__(gt,
                 newline_rate=newline_rate, *args, **kwargs)
-        self.gt.combine_grid()
 
     def put_index(self):
         out = ''
@@ -239,14 +238,10 @@ class SimpleTableTextFormatter(GridTableTextFormatter):
 
 
 class PipelineTableTextFormatter(GridTableTextFormatter):
-    def __init__(self, gt, no_symbol=False, newline_rate=0, *args, **kwargs):
+    def __init__(self, gt, no_symbol=False, newline_rate=0, boarder=0, *args, **kwargs):
         self.no_symbol = no_symbol
         self.halign = None
-        gt.combine_grid()
-        for c in range(len(gt.data)):
-            for i in range(len(gt.data[c])):
-                gt.data[c][i] = [t for t in gt.data[c][i] if t]
-        super(PipelineTableTextFormatter, self).__init__(gt,
+        super(PipelineTableTextFormatter, self).__init__(gt, boarder=boarder,
                 newline_rate=newline_rate, *args, **kwargs)
 
     def put_index(self):
@@ -257,7 +252,7 @@ class PipelineTableTextFormatter(GridTableTextFormatter):
         else:
             out += '|'+'|'.join([':'+(self.colwidth[i]-1)*'-' if self.halign[i]=='l'
                 else (':'+(self.colwidth[i]-2)*'-'+':' if self.halign[i]=='c'
-                    else (self.halign[i]-1)*'-'+':')
+                    else (self.colwidth[i]-1)*'-'+':')
                 for i in range(len(self.colwidth))])+'|\n'
         return out
 
@@ -299,7 +294,6 @@ class PipelineTableTextFormatter(GridTableTextFormatter):
                 t = self.gt.data[col][item]
                 if ''.join(t) == '': self.gt.data[col][item] = ['na'] + [''] * (len(t)-1)
         return super(PipelineTableTextFormatter, self).to_txt(halign, valign)
-
 
 def _justify(string, width, halign='c'):
     if halign == 'l':
