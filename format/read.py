@@ -49,7 +49,7 @@ class SimpleTableReader(ColumnFreeTableReader):
         lines = [i.strip() for i in self.lines if not re.findall(self.sepline_expr,i)]
         columns = [j for j in re.split(self.splitline_expr,lines[0]) if j]
         collen = len(columns)
-        data = [[j for j in re.split(self.splitline_expr,i) if j] for i in lines]
+        data = [[j.strip() for j in re.split(self.splitline_expr,i) if j] for i in lines]
 
         colcounter = [-1]*collen
         coldata = [[[]] for i in range(collen)]
@@ -80,7 +80,7 @@ class PipelineTableReader(SimpleTableReader):
     def __init__(self, *args, **kwargs):
         super(PipelineTableReader, self).__init__(*args, **kwargs)
         self.sepline_expr = r"^[-:|]*$"
-        self.splitline_expr = r" *(?<!\\)\| *"
+        self.splitline_expr = r"(?<!\\)\|"
 
     def read(self, string):
         table = super(PipelineTableReader, self).read(string)

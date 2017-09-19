@@ -186,6 +186,7 @@ class GridTableTextFormatter():
 class SimpleTableTextFormatter(GridTableTextFormatter):
     def __init__(self, gt, no_symbol=False, newline_rate=0, *args, **kwargs):
         self.no_symbol = no_symbol
+        gt.combine_grid()
         super(SimpleTableTextFormatter, self).__init__(gt,
                 newline_rate=newline_rate, *args, **kwargs)
 
@@ -241,6 +242,7 @@ class PipelineTableTextFormatter(GridTableTextFormatter):
     def __init__(self, gt, no_symbol=False, newline_rate=0, boarder=0, *args, **kwargs):
         self.no_symbol = no_symbol
         self.halign = None
+        gt.combine_grid()
         super(PipelineTableTextFormatter, self).__init__(gt, boarder=boarder,
                 newline_rate=newline_rate, *args, **kwargs)
 
@@ -284,7 +286,7 @@ class PipelineTableTextFormatter(GridTableTextFormatter):
             nextline = []
             bdrindic = []
 
-        out = '\n'.join([i for i in out.split('\n') if not re.findall('^[ |]+$',i) ])
+        out = '\n'.join([i for i in out.split('\n') if not re.findall('^[ |-]+$',i) ])
         out = out.rstrip() + '\n'
         return out
 
