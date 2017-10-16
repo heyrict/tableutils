@@ -6,10 +6,11 @@ from math import floor, ceil
 import re
 
 class GridTableTextFormatter():
-    def __init__(self, gt, boarder=2, maxwidth=90, newline_rate=1, mincolwidth=0):
+    def __init__(self, gt, boarder=2, maxwidth=90, newline_rate=1, mincolwidth=0, replace_na=False):
         self.gt = gt
         self.boarder = boarder
         self._resize_stack = []
+        self.replace_na = replace_na
 
         if gt.colwidth: self.colwidth = self.gt.colwidth
         else:
@@ -212,7 +213,12 @@ class SimpleTableTextFormatter(GridTableTextFormatter):
                     indcounter[col] = 0
                 else:
                     t = self.gt.data[col][colcounter[col]][indcounter[col]]
+
                     if self.no_symbol: nextline.append(t)
+                    elif self.replace_na:
+                        nextline.append((t if t.strip() not in ['na','nan']
+                            else ' '*self.colwidth[col])
+                            if t.strip() else _justify('-',self.colwidth[col]))
                     else: nextline.append(t if t.strip() else _justify('-',self.colwidth[col]))
                     indcounter[col] += 1
 
@@ -234,7 +240,8 @@ class SimpleTableTextFormatter(GridTableTextFormatter):
         for col in range(len(self.gt.data)):
             for item in range(len(self.gt.data[col])):
                 t = self.gt.data[col][item]
-                if ''.join(t) == '': self.gt.data[col][item] = ['na'] + [''] * (len(t)-1)
+                if ''.join(t) == '':
+                    self.gt.data[col][item] = ['na'] + [''] * (len(t)-1)
         return super(SimpleTableTextFormatter, self).to_txt(halign, valign)
 
 
@@ -273,7 +280,12 @@ class PipelineTableTextFormatter(GridTableTextFormatter):
                     indcounter[col] = 0
                 else:
                     t = self.gt.data[col][colcounter[col]][indcounter[col]]
+
                     if self.no_symbol: nextline.append(t)
+                    elif self.replace_na:
+                        nextline.append((t if t.strip() not in ['na','nan']
+                            else ' '*self.colwidth[col])
+                            if t.strip() else _justify('-',self.colwidth[col]))
                     else: nextline.append(t if t.strip() else _justify('-',self.colwidth[col]))
                     indcounter[col] += 1
 
@@ -294,7 +306,8 @@ class PipelineTableTextFormatter(GridTableTextFormatter):
         for col in range(len(self.gt.data)):
             for item in range(len(self.gt.data[col])):
                 t = self.gt.data[col][item]
-                if ''.join(t) == '': self.gt.data[col][item] = ['na'] + [''] * (len(t)-1)
+                if ''.join(t) == '':
+                    self.gt.data[col][item] = ['na'] + [''] * (len(t)-1)
         return super(PipelineTableTextFormatter, self).to_txt(halign, valign)
 
 def _justify(string, width, halign='c'):

@@ -105,17 +105,17 @@ def main():
         if options.to_format == 'grid':
             outstr.write(to_grid(data, halign=options.halign, valign=options.valign))
         elif options.to_format == 'simple':
-            outstr.write(to_simple(data, halign=options.halign))
+            outstr.write(to_simple(data, halign=options.halign, replace_na=options.replace_na))
         if options.to_format == 'pipeline':
-            outstr.write(to_pipeline(data, halign=options.halign))
+            outstr.write(to_pipeline(data, halign=options.halign, replace_na=options.replace_na))
         pyperclip.copy(outstr.read())
     else:
         if options.to_format == 'grid':
             outstr.write(to_grid(data, halign=options.halign, valign=options.valign, newline_rate=float(options.sq)))
         elif options.to_format == 'simple':
-            outstr.write(to_simple(data, halign=options.halign))
+            outstr.write(to_simple(data, halign=options.halign, replace_na=options.replace_na))
         elif options.to_format == 'pipeline':
-            outstr.write(to_pipeline(data, halign=options.halign))
+            outstr.write(to_pipeline(data, halign=options.halign, replace_na=options.replace_na))
 
         if options.output:
             with open(options.output,mode) as f:

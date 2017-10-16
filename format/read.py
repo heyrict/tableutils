@@ -57,14 +57,14 @@ class SimpleTableReader(ColumnFreeTableReader):
         for i in range(len(data)):
             for c in range(collen):
                 try:
-                    if data[i][c] in '-':
+                    if data[i][c] in ['-']:
                         coldata[c][colcounter[c]] += ['','']
                         continue
                     else:
                         colcounter[c] += 1
                         if colcounter[c] != 0: coldata[c].append([])
 
-                    if data[i][c] in ['na','nan','NA']:
+                    if data[i][c] in ['na','nan','NA', '']:
                         coldata[c][colcounter[c]].append('')
                     else:
                         coldata[c][colcounter[c]].append(data[i][c])
