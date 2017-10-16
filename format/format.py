@@ -6,7 +6,7 @@ from math import floor, ceil
 import re
 
 class GridTableTextFormatter():
-    def __init__(self, gt, boarder=2, maxwidth=90, newline_rate=1):
+    def __init__(self, gt, boarder=2, maxwidth=90, newline_rate=1, mincolwidth=0):
         self.gt = gt
         self.boarder = boarder
         self._resize_stack = []
@@ -15,7 +15,7 @@ class GridTableTextFormatter():
         else:
             self.colwidth = self._calc_best_colwidth(maxwidth,newline_rate)
             self._resize(self.colwidth)
-        self.colwidth = [max([max([len(k) for k in i]) for i in j]) for j in self.gt.data]
+        self.colwidth = [max([max([len(k) for k in i]+[mincolwidth]) for i in j]) for j in self.gt.data]
         self.colwidth = [i + self.boarder for i in self.colwidth]
 
     def to_txt(self, halign='c', valign='c'):
@@ -244,7 +244,7 @@ class PipelineTableTextFormatter(GridTableTextFormatter):
         self.halign = None
         gt.combine_grid()
         super(PipelineTableTextFormatter, self).__init__(gt, boarder=boarder,
-                newline_rate=newline_rate, *args, **kwargs)
+                newline_rate=newline_rate, mincolwidth=2, *args, **kwargs)
 
     def put_index(self):
         out = ''
