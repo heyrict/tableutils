@@ -274,7 +274,10 @@ class PipelineTableTextFormatter(GridTableTextFormatter):
                 else:
                     t = self.gt.data[col][colcounter[col]][indcounter[col]]
                     if self.no_symbol: nextline.append(t)
-                    else: nextline.append(t if t.strip() else _justify('-',self.colwidth[col]))
+                    else: nextline.append(
+                            (t if t.strip() not in ['na', 'nan', 'null']
+                                else _justify('', self.colwidth[col]))
+                        if t.strip() else _justify('-', self.colwidth[col]))
                     indcounter[col] += 1
 
             out += '|'
