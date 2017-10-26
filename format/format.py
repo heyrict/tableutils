@@ -44,12 +44,9 @@ class GridTableTextFormatter():
             self.gt.combine_grid()
             return [max([len(i[0]) for i in j]) for j in self.gt.data]
         # maxwidth shouldn't be too small
-        if maxwidth < len(self.gt.data) * 5:
-            maxwidth = len(self.gt.data) * 5
-
-        # simple static functions
-        avg = lambda x: sum(x) / len(x)
-        var = lambda x: sum([(i - avg(x))**2 for i in x])
+        maxwidth = maxwidth - len(self.gt.data) * 3
+        if maxwidth < len(self.gt.data) * 7:
+            maxwidth = len(self.gt.data) * 7
 
         # useful values
         # length_of_columns
@@ -57,31 +54,15 @@ class GridTableTextFormatter():
 
         self.gt.combine_grid()
 
-        widths = [[len(self.gt.data[col][i[0]][i[1]]) if i else None
-            for i in self.gt.index[col]] for col in range(len(self.gt.index))]
-        colwidth = []
-
-        for col in range(len(self.gt.data)):
-            scw = sorted([i for i in widths[col] if i])
-            diffs = [scw[i] - scw[i-1] for i in range(1,len(scw))]
-            if var(scw) > 1000*newline_rate and scw[-1] > maxwidth/len(self.gt.data):
-                # calculate threshold
-                thresh = 0; prev = -1
-                for s in range(len(diffs)):
-                    pres = sum([abs(diffs[i] - diffs[s]) for i in range(len(diffs))])
-                    if pres > prev:
-                        prev = pres
-                        thresh = scw[s]
-                thresh = int(max(thresh, widths[col][0], maxwidth/len(self.gt.data)))
-
-                colwidth.append(thresh)
-            else:
-                colwidth.append(scw[-1])
-
-        while sum(colwidth) > maxwidth:
-            maxcw = colwidth.index(max(colwidth))
-            colwidth[maxcw] = ceil(colwidth[maxcw] / 2)
-        return colwidth
+        colwidth = [max([len(self.gt.data[col][i[0]][i[1]]) for i in self.gt.index[col] if i]) for col in range(len(self.gt.index))]
+        divides = [1]*len(colwidth)
+        newcolwidth = colwidth
+        while sum(colwidth)+2*len(lc) > maxwidth:
+            maxcw = newcolwidth.index(max(colwidth))
+            divides[maxcw] += 1
+            print(divides)
+            newcolwidth[maxcw] = ceil(colwidth[maxcw] / divides[maxcw])
+        return newcolwidth
 
     def _resize(self, colwidth):
         # change the form to correspond to new threshold
