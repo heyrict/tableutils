@@ -23,6 +23,7 @@ def main():
     opt.add_option('-n','--replace-na',dest='replace_na',default=False,action='store_true',help='replace na values by spaces (WARNING: THIS OPTION WILL PROBABLY MAKE OUTPUT UNCOMPATIBLE)')
     opt.add_option('-H',dest='halign',default='c',help='horizonal align: [l,c,r]')
     opt.add_option('-V',dest='valign',default='c',help='vertical align: [u,c,d]')
+    opt.add_option('-W',dest='maxwidth',default='90',help='max allowed width')
 
     opt.add_option('-%',dest='sq',default=1,help='squeeze rate for grid output')
 
@@ -103,7 +104,8 @@ def main():
     outstr = string()
     if options.to_clipboard == True:
         if options.to_format == 'grid':
-            outstr.write(to_grid(data, halign=options.halign, valign=options.valign))
+            outstr.write(to_grid(data, halign=options.halign, valign=options.valign,
+                newline_rate=float(options.sq), maxwidth=float(options.maxwidth)))
         elif options.to_format == 'simple':
             outstr.write(to_simple(data, halign=options.halign, replace_na=options.replace_na))
         if options.to_format == 'pipeline':
@@ -111,7 +113,8 @@ def main():
         pyperclip.copy(outstr.read())
     else:
         if options.to_format == 'grid':
-            outstr.write(to_grid(data, halign=options.halign, valign=options.valign, newline_rate=float(options.sq)))
+            outstr.write(to_grid(data, halign=options.halign, valign=options.valign,
+                newline_rate=float(options.sq), maxwidth=float(options.maxwidth)))
         elif options.to_format == 'simple':
             outstr.write(to_simple(data, halign=options.halign, replace_na=options.replace_na))
         elif options.to_format == 'pipeline':

@@ -15,7 +15,7 @@ def read_pipeline(string, mode='loose', sepline_expr='^[-:|]*$', reset_linebreak
 
 
 def to_grid(cft, boarder=2, maxwidth=90, newline_rate=1, halign='c', valign='c'):
-    return GridTableTextFormatter(cft, boarder=boarder, newline_rate=newline_rate)\
+    return GridTableTextFormatter(cft, boarder=boarder, newline_rate=newline_rate, maxwidth=maxwidth)\
             .to_txt(halign=halign, valign=valign)
 
 def to_simple(cft, halign='c', replace_na=True):

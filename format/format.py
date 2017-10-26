@@ -29,7 +29,12 @@ class GridTableTextFormatter():
     def put_index(self):
         out = ''
         out += '+'+'+'.join([(i)*'-' for i in self.colwidth])+'+\n'
-        out += '|'+'|'.join([''.join(i[0]) for i in self.gt.data])+'|\n'
+        #out += '|'+'|'.join([''.join(i[0]) for i in self.gt.data])+'|\n'
+        colstr = ['|'] * len(self.gt.data[0][0])
+        for j in range(len(colstr)):
+            for i in self.gt.data:
+                colstr[j] += i[0][j] + '|'
+        out += '\n'.join(colstr) + '\n'
         out += '+'+'+'.join([(i)*'=' for i in self.colwidth])+'+\n'
         return out
 
@@ -73,6 +78,9 @@ class GridTableTextFormatter():
             else:
                 colwidth.append(scw[-1])
 
+        while sum(colwidth) > maxwidth:
+            maxcw = colwidth.index(max(colwidth))
+            colwidth[maxcw] = ceil(colwidth[maxcw] / 2)
         return colwidth
 
     def _resize(self, colwidth):
@@ -106,22 +114,19 @@ class GridTableTextFormatter():
                 self.gt.data[col][item] = content + (len(self.gt.data[col][item]) - len(content)) * ['']
             else:
                 # expand short columns
-                current_index = self.gt.index[col].index((item, origshape[col][item]-1))
-                to_be_appended_index = current_index + column_count_to_append
-                expand_range = 1
+                current_index = self.gt.index[col].index((item, origshape[col][item]-1)) - 1
+                expand_range = 0
                 for c in range(len(origshape)):
                     if c == col: continue
-                    try:
-                        expand_range = max(expand_range, column_count_to_append - self.gt.index[c]\
-                                [current_index:to_be_appended_index+1].index(None) + 1)
-                    except ValueError:
-                        continue
+                    expand_range = max(expand_range, column_count_to_append)
 
                 for c in range(len(origshape)):
                     # handle lastone item error issue
-                    try: item_to_expand = self.gt.index[c][current_index + expand_range - 1][0]
-                    except: item_to_expand = -1
-                    self.gt.data[c][item_to_expand] += ['']*expand_range
+                    #try: item_to_expand = self.gt.index[c][current_index + 1][0]
+                    #except: continue
+                    item_to_expand = self.gt.index[c][current_index + 1][0]
+                    if len(self.gt.data[c][item_to_expand]) < expand_range+origshape[c][item_to_expand]:
+                        self.gt.data[c][item_to_expand] += ['']*expand_range
 
                 self.gt.data[col][item] = content + (len(self.gt.data[col][item]) - len(content)) * ['']
 
@@ -195,7 +200,13 @@ class SimpleTableTextFormatter(GridTableTextFormatter):
         out = ''
         out += ' '+' '.join([(i)*'-' for i in self.colwidth])+' \n'
         out += ' '+' '.join([''.join(i[0]) for i in self.gt.data])+' \n'
-        out += ' '+' '.join([(i)*'-' for i in self.colwidth])+' \n'
+        if self.halign == None:
+            out += ' '+' '.join([(i)*'-' for i in self.colwidth])+' \n'
+        else:
+            out += ' '+' '.join(['-'+(self.colwidth[i]-1)*'-' if self.halign[i]=='l'
+                else ('-'+(self.colwidth[i]-2)*'-'+'-' if self.halign[i]=='c'
+                    else (self.colwidth[i]-1)*'-'+'-')
+                for i in range(len(self.colwidth))])+' \n'
         return out
 
     def put_data(self):
