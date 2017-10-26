@@ -25,8 +25,6 @@ def main():
     opt.add_option('-V',dest='valign',default='c',help='vertical align: [u,c,d]')
     opt.add_option('-W',dest='maxwidth',default='90',help='max allowed width')
 
-    opt.add_option('-%',dest='sq',default=1,help='squeeze rate for grid output')
-
     opt.add_option('-c','--to-clipboard',dest='to_clipboard',action='store_true',default=False,help='redirect output to clipboard')
     opt.add_option('-C','--from-clipboard',dest='from_clipboard',action='store_true',default=False,help='redirect input from clipboard')
 
@@ -105,7 +103,7 @@ def main():
     if options.to_clipboard == True:
         if options.to_format == 'grid':
             outstr.write(to_grid(data, halign=options.halign, valign=options.valign,
-                newline_rate=float(options.sq), maxwidth=float(options.maxwidth)))
+                maxwidth=float(options.maxwidth)))
         elif options.to_format == 'simple':
             outstr.write(to_simple(data, halign=options.halign, replace_na=options.replace_na))
         if options.to_format == 'pipeline':
@@ -114,7 +112,7 @@ def main():
     else:
         if options.to_format == 'grid':
             outstr.write(to_grid(data, halign=options.halign, valign=options.valign,
-                newline_rate=float(options.sq), maxwidth=float(options.maxwidth)))
+                maxwidth=float(options.maxwidth)))
         elif options.to_format == 'simple':
             outstr.write(to_simple(data, halign=options.halign, replace_na=options.replace_na))
         elif options.to_format == 'pipeline':

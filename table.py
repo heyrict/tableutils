@@ -37,5 +37,5 @@ class ColumnFreeTable(object):
 
     def combine_grid(self):
         for col in range(len(self.data)):
-            self.data[col] = [[wcstr('').join(i)] + [''] * (len(i) - 1)\
+            self.data[col] = [[wcstr('').join(i)]# + [''] * (len(i) - 1)\
                  for i in self.data[col]]

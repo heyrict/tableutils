@@ -44,9 +44,9 @@ class GridTableTextFormatter():
             self.gt.combine_grid()
             return [max([len(i[0]) for i in j]) for j in self.gt.data]
         # maxwidth shouldn't be too small
-        maxwidth = maxwidth - len(self.gt.data) * 3
-        if maxwidth < len(self.gt.data) * 7:
-            maxwidth = len(self.gt.data) * 7
+        maxwidth = maxwidth - len(self.gt.data) * 2
+        if maxwidth < len(self.gt.data) * 4:
+            maxwidth = len(self.gt.data) * 4
 
         # useful values
         # length_of_columns
@@ -60,7 +60,6 @@ class GridTableTextFormatter():
         while sum(colwidth)+2*len(lc) > maxwidth:
             maxcw = newcolwidth.index(max(colwidth))
             divides[maxcw] += 1
-            print(divides)
             newcolwidth[maxcw] = ceil(colwidth[maxcw] / divides[maxcw])
         return newcolwidth
 
